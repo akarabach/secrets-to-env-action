@@ -4,6 +4,7 @@ import {camelCase} from 'camel-case'
 import {constantCase} from 'constant-case'
 import {pascalCase} from 'pascal-case'
 import {snakeCase} from 'snake-case'
+import * as fs from 'fs'
 
 const convertTypes: Record<string, (s: string) => string> = {
   lower: s => s.toLowerCase(),
@@ -29,6 +30,7 @@ export default async function run(): Promise<void> {
     const excludeListStr: string = core.getInput('exclude')
     const convert: string = core.getInput('convert')
     const convertPrefixStr = core.getInput('convert_prefix')
+    const outputFileName = core.getInput('output_file_name')
     const convertPrefix = convertPrefixStr.length
       ? convertPrefixStr === 'true'
       : true
@@ -101,6 +103,10 @@ with:
 
       core.exportVariable(newKey, secrets[key])
       core.info(`Exported secret ${newKey}`)
+      if (outputFileName) {
+        fs.appendFileSync(outputFileName, `${newKey}=${secrets[key]}`);
+        core.info(`Exported secret ${newKey} to ${outputFileName}`)
+      }
     }
   } catch (error) {
     if (error instanceof Error) core.setFailed(error.message)
