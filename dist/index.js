@@ -44,6 +44,7 @@ const camel_case_1 = __nccwpck_require__(638);
 const constant_case_1 = __nccwpck_require__(878);
 const pascal_case_1 = __nccwpck_require__(995);
 const snake_case_1 = __nccwpck_require__(213);
+const fs = __importStar(__nccwpck_require__(147));
 const convertTypes = {
     lower: s => s.toLowerCase(),
     upper: s => s.toUpperCase(),
@@ -67,6 +68,7 @@ function run() {
             const excludeListStr = core.getInput('exclude');
             const convert = core.getInput('convert');
             const convertPrefixStr = core.getInput('convert_prefix');
+            const outputFileName = core.getInput('output_file_name');
             const convertPrefix = convertPrefixStr.length
                 ? convertPrefixStr === 'true'
                 : true;
@@ -123,6 +125,10 @@ with:
                 }
                 core.exportVariable(newKey, secrets[key]);
                 core.info(`Exported secret ${newKey}`);
+                if (outputFileName) {
+                    fs.appendFileSync(outputFileName, `${newKey}=${secrets[key]}`);
+                    core.info(`Exported secret ${newKey} to ${outputFileName}`);
+                }
             }
         }
         catch (error) {
